@@ -1,4 +1,13 @@
 {
+  "scripts": {
+    "test:calibration": "npx tsx test/test_data_by_time_range_calibration.ts",
+    "test:stet": "npx tsx test/test_get_data_by_stet.ts",
+    "test:limited": "npx tsx test/test_get_limited_data.ts",
+    "test:monthly": "npx tsx test/test_get_monthly_consumption.ts",
+    "test:entities": "npx tsx test/test_load_entities_gen.ts",
+    "test:entity-by-id": "npx tsx test/test_load_entities_gen_by_id.ts",
+    "test:entities-paginated": "npx tsx test/test_load_entities_gen_paginated.ts"
+  },
   "devDependencies": {
     "@types/amqplib": "^0.10.7",
     "ts-node": "^10.9.2",
