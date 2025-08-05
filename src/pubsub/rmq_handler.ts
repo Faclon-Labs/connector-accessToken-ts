@@ -1,12 +1,13 @@
 import * as amqp from 'amqplib';
+import { DEFAULT_RABBITMQ_URL, DEFAULT_RABBITMQ_USERNAME, DEFAULT_RABBITMQ_PASSWORD } from '../utils/constants';
 
 /**
  * RabbitMQ connection credentials.
- * @property {string} [uri] - Full AMQP URI (overrides other fields if provided).
+ * @property {string} [uri] - Full AMQP URI (overrides other fields if provided). If not provided, uses DEFAULT_RABBITMQ_URL from constants.
  * @property {string} [host] - RabbitMQ server host.
  * @property {number} [port] - RabbitMQ server port.
- * @property {string} [username] - Username for authentication.
- * @property {string} [password] - Password for authentication.
+ * @property {string} [username] - Username for authentication. Defaults to DEFAULT_RABBITMQ_USERNAME.
+ * @property {string} [password] - Password for authentication. Defaults to DEFAULT_RABBITMQ_PASSWORD.
  * @property {string} [vhost] - Virtual host to connect to.
  */
 export interface RMQCredentials {
@@ -18,25 +19,40 @@ export interface RMQCredentials {
   vhost?: string;
 }
 
+// Internal interface for the resolved credentials
+interface ResolvedRMQCredentials {
+  uri?: string;
+  host?: string;
+  port?: number;
+  username: string;
+  password: string;
+  vhost?: string;
+}
+
 /**
  * Handler for RabbitMQ (AMQP) operations: connect, publish, and subscribe.
  *
  * Example usage:
  * ```ts
- * const creds: RMQCredentials = { host: 'localhost', port: 5672, username: 'guest', password: 'guest' };
+ * const creds: RMQCredentials = { host: 'localhost', port: 5672, username: 'guest', password: 'guest' }; // Uses defaults if not provided
  * const rmq = new RMQHandler(creds);
  * await rmq.publishSingle('queue', 'message');
  * ```
  */
 export class RMQHandler {
-  private credentials: RMQCredentials;
+  private credentials: ResolvedRMQCredentials;
 
   /**
    * Constructs a new RMQHandler instance with the given credentials.
    * @param {RMQCredentials} credentials - RabbitMQ connection credentials.
    */
   constructor(credentials: RMQCredentials) {
-    this.credentials = credentials;
+    // Use the provided values or fall back to the defaults from constants
+    this.credentials = {
+      ...credentials,
+      username: credentials.username ?? DEFAULT_RABBITMQ_USERNAME,
+      password: credentials.password ?? DEFAULT_RABBITMQ_PASSWORD,
+    };
   }
 
   /**
@@ -49,10 +65,13 @@ export class RMQHandler {
     let url: string;
     if (this.credentials.uri) {
       url = this.credentials.uri;
-    } else {
+    } else if (this.credentials.host && this.credentials.port) {
       const { host, port, username, password, vhost } = this.credentials;
       const vhostPart = vhost ? `/${encodeURIComponent(vhost)}` : '';
-      url = `amqp://${encodeURIComponent(username!)}:${encodeURIComponent(password!)}@${host}:${port}${vhostPart}`;
+      url = `amqp://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${host}:${port}${vhostPart}`;
+    } else {
+      // Use the default URL if nothing else is provided
+      url = DEFAULT_RABBITMQ_URL;
     }
     const connection = await amqp.connect(url);
     const channel = await connection.createChannel();

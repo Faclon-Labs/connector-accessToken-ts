@@ -66,3 +66,22 @@ export const RETRY_DELAY: readonly [number, number] = [2, 4] as const;
 // Default cursor limit for device queries
 export const DEVICE_DEFAULT_CURSOR_LIMIT: number = 25000;
 
+//------------------------------- pubsub Constants -------------------------------
+//mongodb
+export const DEFAULT_MONGO_URL: string = 'mongodb://localhost:27017/';
+//redis
+export const DEFAULT_REDIS_URL: string = 'redis://localhost:6379/';
+//rabbitmq
+export const DEFAULT_RABBITMQ_URL: string = 'amqp://localhost:5672/';
+export const DEFAULT_RABBITMQ_USERNAME: string = 'guest';
+export const DEFAULT_RABBITMQ_PASSWORD: string = 'guest';
+//mqtt
+export const DEFAULT_MQTT_BROKER: string = 'localhost';
+export const DEFAULT_MQTT_PORT: number = 1883;
+//postgres
+export const DEFAULT_POSTGRES_HOST: string = 'localhost';
+export const DEFAULT_POSTGRES_USER: string = 'postgres';
+export const DEFAULT_POSTGRES_PORT: number = 5432;
+//kfka
+export const DEFAULT_KAFKA_BROKER: string = 'localhost:9092';
+

@@ -1,13 +1,21 @@
 import { MongoClient, Db, Collection, InsertOneResult, Filter, UpdateFilter, UpdateResult, DeleteResult, Document } from 'mongodb';
+import { DEFAULT_MONGO_URL } from '../utils/constants';
 
 /**
  * Configuration options for connecting to a MongoDB database and collection.
- * @property {string} uri - The full MongoDB connection URI (e.g., 'mongodb://localhost:27017').
+ * @property {string} [uri] - The full MongoDB connection URI (e.g., 'mongodb://localhost:27017'). If not provided, uses DEFAULT_MONGO_URL from constants.
  * @property {string} dbName - The name of the database to connect to.
  * @property {string} collectionName - The name of the collection to operate on.
  */
 export interface MongoConfig {
-  uri: string;           // Full MongoDB connection URI
+  uri?: string;          // Full MongoDB connection URI (optional)
+  dbName: string;        // Database name
+  collectionName: string;// Collection to operate on
+}
+
+// Internal interface for the resolved config
+interface ResolvedMongoConfig {
+  uri: string;           // Full MongoDB connection URI (always defined)
   dbName: string;        // Database name
   collectionName: string;// Collection to operate on
 }
@@ -19,13 +27,13 @@ export interface MongoConfig {
  *
  * Example usage:
  * ```ts
- * const config: MongoConfig = { uri: 'mongodb://localhost:27017', dbName: 'test', collectionName: 'users' };
+ * const config: MongoConfig = { dbName: 'test', collectionName: 'users' }; // Uses default URI
  * const userCrud = new MongoCRUD<User>(config);
  * await userCrud.create({ name: 'Alice', age: 30 });
  * ```
  */
 export class MongoCRUD<T extends Document> {
-  private config: MongoConfig;
+  private config: ResolvedMongoConfig;
   private client: MongoClient | null = null;
   private db: Db | null = null;
   private collection: Collection<T> | null = null;
@@ -35,7 +43,12 @@ export class MongoCRUD<T extends Document> {
    * @param {MongoConfig} config - MongoDB connection and collection configuration.
    */
   constructor(config: MongoConfig) {
-    this.config = config;
+    // Use the provided URI or fall back to the default from constants
+    const finalUri = config.uri ?? DEFAULT_MONGO_URL;
+    this.config = {
+      ...config,
+      uri: finalUri
+    } as ResolvedMongoConfig;
   }
 
   /**

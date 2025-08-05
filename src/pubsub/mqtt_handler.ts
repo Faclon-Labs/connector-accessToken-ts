@@ -1,18 +1,27 @@
 import mqtt from 'mqtt';
 import { Buffer } from 'buffer';
+import { DEFAULT_MQTT_BROKER, DEFAULT_MQTT_PORT } from '../utils/constants';
 
 /**
  * Configuration for connecting to an MQTT broker.
- * @property {string} broker - MQTT broker address.
- * @property {number} port - MQTT broker port.
- * @property {string} username - Username for authentication.
- * @property {string} password - Password for authentication.
+ * @property {string} [broker] - MQTT broker address. Defaults to DEFAULT_MQTT_BROKER from constants.
+ * @property {number} [port] - MQTT broker port. Defaults to DEFAULT_MQTT_PORT from constants.
+ * @property {string} [username] - Username for authentication (optional).
+ * @property {string} [password] - Password for authentication (optional).
  */
 export interface MqttConfig {
+  broker?: string;
+  port?: number;
+  username?: string;
+  password?: string;
+}
+
+// Internal interface for the resolved config
+interface ResolvedMqttConfig {
   broker: string;
   port: number;
-  username: string;
-  password: string;
+  username?: string;
+  password?: string;
 }
 
 /**
@@ -35,7 +44,7 @@ export interface DevicePayload {
  *
  * Example usage:
  * ```ts
- * const config: MqttConfig = { broker: 'localhost', port: 1883, username: 'user', password: 'pass' };
+ * const config: MqttConfig = { broker: 'localhost', port: 1883, username: 'user', password: 'pass' }; // Uses defaults if not provided
  * const mqttConn = new MqttConnector(config);
  * await mqttConn.connect();
  * await mqttConn.publish('topic', { foo: 'bar' });
@@ -43,7 +52,7 @@ export interface DevicePayload {
  */
 export class MqttConnector {
   private client: mqtt.MqttClient | null = null;
-  private config: MqttConfig;
+  private config: ResolvedMqttConfig;
   private isConnected: boolean = false;
 
   /**
@@ -51,7 +60,13 @@ export class MqttConnector {
    * @param {MqttConfig} config - MQTT connection configuration.
    */
   constructor(config: MqttConfig) {
-    this.config = config;
+    // Use the provided values or fall back to the defaults from constants
+    this.config = {
+      broker: config.broker ?? DEFAULT_MQTT_BROKER,
+      port: config.port ?? DEFAULT_MQTT_PORT,
+      ...(config.username && { username: config.username }),
+      ...(config.password && { password: config.password })
+    };
   }
 
   /**
@@ -63,12 +78,20 @@ export class MqttConnector {
     return new Promise((resolve, reject) => {
       const url = `mqtt://${this.config.broker}:${this.config.port}`;
       
-      this.client = mqtt.connect(url, {
-        username: this.config.username,
-        password: this.config.password,
+      const connectOptions: mqtt.IClientOptions = {
         connectTimeout: 10000,
         reconnectPeriod: 1000,
-      });
+      };
+
+      // Only add username/password if they are provided
+      if (this.config.username) {
+        connectOptions.username = this.config.username;
+      }
+      if (this.config.password) {
+        connectOptions.password = this.config.password;
+      }
+      
+      this.client = mqtt.connect(url, connectOptions);
 
       this.client.on('connect', () => {
         this.isConnected = true;

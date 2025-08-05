@@ -1,8 +1,9 @@
 import Redis, { Redis as RedisClient } from 'ioredis';
+import { DEFAULT_REDIS_URL } from '../utils/constants';
 
 /**
  * Redis connection configuration options.
- * @property {string} [uri] - Full Redis URI (overrides other fields if provided).
+ * @property {string} [uri] - Full Redis URI (overrides other fields if provided). If not provided, uses DEFAULT_REDIS_URL from constants.
  * @property {string} [host] - Redis server host.
  * @property {number} [port] - Redis server port.
  * @property {string} [username] - Username for authentication.
@@ -18,18 +19,28 @@ export interface RedisConfig {
   db?: number;
 }
 
+// Internal interface for the resolved config
+interface ResolvedRedisConfig {
+  uri?: string;
+  host?: string;
+  port?: number;
+  username?: string;
+  password?: string;
+  db?: number;
+}
+
 /**
  * Redis CRUD (Create, Read, Update, Delete) utility class for key-value operations.
  *
  * Example usage:
  * ```ts
- * const config: RedisConfig = { host: 'localhost', port: 6379 };
+ * const config: RedisConfig = { host: 'localhost', port: 6379 }; // Uses default URI if no uri provided
  * const redis = new RedisCRUD(config);
  * await redis.set('key', { foo: 'bar' });
  * ```
  */
 export class RedisCRUD {
-  private config: RedisConfig;
+  private config: ResolvedRedisConfig;
   private client: RedisClient | null = null;
 
   /**
@@ -37,7 +48,12 @@ export class RedisCRUD {
    * @param {RedisConfig} config - Redis connection configuration.
    */
   constructor(config: RedisConfig) {
-    this.config = config;
+    // Use the provided URI or fall back to the default from constants
+    const finalUri = config.uri ?? DEFAULT_REDIS_URL;
+    this.config = {
+      ...config,
+      uri: finalUri
+    } as ResolvedRedisConfig;
   }
 
   /**
