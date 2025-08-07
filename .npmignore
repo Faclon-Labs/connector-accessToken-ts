@@ -1,0 +1,32 @@
+# Source files
+src/
+test.ts
+tsconfig.json
+
+# Development files
+.git/
+.github/
+node_modules/
+*.log
+.DS_Store
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test files (if you add them later)
+__tests__/
+*.test.ts
+*.spec.ts
+
+# Documentation build files
+docs/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

@@ -1,5 +1,39 @@
 {
+  "name": "iosense-sdk",
+  "version": "1.0.0",
+  "description": "Official TypeScript SDK for IOSense platform APIs, providing seamless access to device management, user operations, authentication, and multi-protocol pub/sub messaging systems.",
+  "keywords": ["iosense", "iot", "typescript", "sdk", "mqtt", "kafka", "redis", "postgresql", "device-management", "pubsub"],
+  "author": "FaclonLabs",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Faclon-Labs/connector-accessToken-ts.git"
+  },
+  "homepage": "https://github.com/Faclon-Labs/connector-accessToken-ts#readme",
+  "bugs": {
+    "url": "https://github.com/Faclon-Labs/connector-accessToken-ts/issues"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run clean && npm run build",
+    "test": "node --loader ts-node/esm test.ts",
     "test:calibration": "npx tsx test/test_data_by_time_range_calibration.ts",
     "test:stet": "npx tsx test/test_get_data_by_stet.ts",
     "test:limited": "npx tsx test/test_get_limited_data.ts",
@@ -11,8 +45,10 @@
   "devDependencies": {
     "@types/amqplib": "^0.10.7",
     "@types/pg": "^8.15.5",
+    "rimraf": "^6.0.0",
     "ts-node": "^10.9.2",
-    "typescript": "4.5"
+    "tsx": "^4.0.0",
+    "typescript": "^5.3.0"
   },
   "dependencies": {
     "@types/mqtt": "^2.5.0",
