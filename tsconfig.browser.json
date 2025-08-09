@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist/browser",
+    "lib": ["ES2020", "DOM"]
+  },
+  "include": [
+    "src/browser/**/*",
+    "src/core/**/*",
+    "src/connectors/**/*",
+    "src/utils/**/*"
+  ],
+  "exclude": [
+    "src/pubsub/**/*",
+    "src/node/**/*",
+    "node_modules",
+    "dist"
+  ]
+}

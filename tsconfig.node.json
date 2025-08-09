@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist/node"
+  },
+  "include": [
+    "src/node/**/*",
+    "src/core/**/*",
+    "src/connectors/**/*",
+    "src/pubsub/**/*",
+    "src/utils/**/*"
+  ],
+  "exclude": [
+    "src/browser/**/*",
+    "node_modules",
+    "dist"
+  ]
+}

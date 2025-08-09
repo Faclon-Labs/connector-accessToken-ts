@@ -13,10 +13,10 @@ export interface LoginOptions {
   username: string;
   password: string;
   fcmToken?: string;
-  dataUrl: string;
+  dataUrl?: string;
   onPrem?: boolean;
-  organisation: string;
-  origin: string;
+  organisation?: string;
+  origin?: string;
   'x-real-ip'?: string;
   'user-agent'?: string;
   extraHeaders?: Record<string, string>;
@@ -120,10 +120,10 @@ export interface EntitySet {
  *   @param username {string} - User's email or username. (required)
  *   @param password {string} - User's password. (required)
  *   @param fcmToken {string} - Optional Firebase Cloud Messaging token for push notifications.
- *   @param dataUrl {string} - The backend server URL. (required)
+ *   @param dataUrl {string} - The backend server URL. Defaults to 'connector.iosense.io'.
  *   @param onPrem {boolean} - (optional) Whether to use HTTP (true) or HTTPS (false, default).
- *   @param organisation {string} - Organisation URL or identifier. (required)
- *   @param origin {string} - Origin URL for the request. (required)
+ *   @param organisation {string} - Organisation URL or identifier. Defaults to 'https://iosense.io'.
+ *   @param origin {string} - Origin URL for the request. Defaults to 'https://iosense.io'.
  *   @param 'x-real-ip' {string} - (optional) Real IP address of the client.
  *   @param 'user-agent' {string} - (optional) User agent string for the request.
  *   @param extraHeaders {Record<string, string>} - (optional) Additional HTTP headers.
@@ -154,13 +154,19 @@ export interface EntitySet {
  *   }
  *
  * @example
- * // Basic login with required fields:
+ * // Basic login with only required fields (using defaults):
+ * const response = await login({
+ *   username: 'user@example.com',
+ *   password: 'securepassword123'
+ * });
+ *
+ * // Login with custom URLs:
  * const response = await login({
  *   username: 'user@example.com',
  *   password: 'securepassword123',
- *   dataUrl: 'appserver.iosense.io',
- *   organisation: 'https://iosense.io',
- *   origin: 'https://iosense.io'
+ *   dataUrl: 'custom.iosense.io',
+ *   organisation: 'https://custom.com',
+ *   origin: 'https://custom.com'
  * });
  *
  * // Login with optional fields:
@@ -184,10 +190,10 @@ export async function login(options: LoginOptions): Promise<LoginResponse | null
     username,
     password,
     fcmToken,
-    dataUrl,
+    dataUrl = 'connector.iosense.io',
     onPrem = false,
-    organisation,
-    origin,
+    organisation = 'https://iosense.io',
+    origin = 'https://iosense.io',
     'x-real-ip': xRealIp,
     'user-agent': userAgent,
     extraHeaders = {},

@@ -1,0 +1,29 @@
+{
+  "uuid": "a1b2c3d4-e5f6-7890-abcd-1234567890ef",
+  "name": "Get Device Details",
+  "summary": "Fetches metadata and latest status for a device from InfluxDB.",
+  "description": "This endpoint retrieves device information from InfluxDB, including tags, status, and recent data points. Useful for IoT monitoring systems.",
+  "endpoint": "/devices/{device_id}/details",
+  "method": "GET",
+  "request_example": "curl -X GET 'https://api.example.com/devices/123/details' -H 'Authorization: Bearer TOKEN'",
+  "fields_description": {
+    "device_id": "Unique identifier for the device",
+    "auth_token": "Access token for authentication"
+  },
+  "response_example": "{ 'device_id': '123', 'status': 'active', 'temperature': 24.5 }",
+  "supported_envs": ["node", "browser", "python"],
+  "targets": ["influxdb", "iot"],
+  "next_steps": ["get_device_metadata", "list_all_devices"],
+  "general_queries": [
+    "fetch device details",
+    "get latest sensor readings",
+    "how to retrieve device info from InfluxDB"
+  ],
+  "provenance": "internal_team_v1",
+  "license": "MIT",
+  "tenant_id": "tenant_001",
+  "vector_schema_version": "1.0",
+  "embed_model": "text-embedding-3-large",
+  "created_at": "2025-08-09T12:00:00Z",
+  "updated_at": "2025-08-09T12:00:00Z"
+}

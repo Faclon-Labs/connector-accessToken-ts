@@ -25,18 +25,36 @@ The official TypeScript SDK for IOSense platform APIs, providing seamless access
 npm install iosense-sdk
 ```
 
+### Platform Support
+
+Choose the right import for your environment:
+
+```typescript
+// Universal (recommended) - works everywhere
+import { login, DeviceAccess, UserAccess } from 'iosense-sdk';
+
+// Browser only (no PubSub)
+import { login, DeviceAccess, UserAccess } from 'iosense-sdk/browser';
+
+// Node.js (full features)
+import { login, DeviceAccess, UserAccess, MqttConnector } from 'iosense-sdk/node';
+
+// Core features only
+import { login, DeviceAccess, UserAccess } from 'iosense-sdk/core';
+```
+
 ### Basic Usage
 
 ```typescript
 import { login, DeviceAccess, UserAccess } from 'iosense-sdk';
 
-// 1. Authenticate
+// 1. Authenticate (now with defaults!)
 const loginResponse = await login({
   username: 'user@example.com',
-  password: 'securepassword123',
-  dataUrl: 'connector.iosense.io',
-  organisation: 'https://iosense.io',
-  origin: 'https://iosense.io'
+  password: 'securepassword123'
+  // dataUrl defaults to 'connector.iosense.io'
+  // organisation defaults to 'https://iosense.io' 
+  // origin defaults to 'https://iosense.io'
 });
 
 // 2. Initialize connectors

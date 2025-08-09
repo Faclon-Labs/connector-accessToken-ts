@@ -19,6 +19,18 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./browser": {
+      "import": "./dist/browser/index.js",
+      "types": "./dist/browser/index.d.ts"
+    },
+    "./node": {
+      "import": "./dist/node/index.js", 
+      "types": "./dist/node/index.d.ts"
+    },
+    "./core": {
+      "import": "./dist/core/index.js",
+      "types": "./dist/core/index.d.ts"
     }
   },
   "files": [
@@ -30,9 +42,13 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "npm run clean && npm run build:core && npm run build:browser && npm run build:node && npm run build:main",
+    "build:core": "tsc -p tsconfig.core.json",
+    "build:browser": "tsc -p tsconfig.browser.json", 
+    "build:node": "tsc -p tsconfig.node.json",
+    "build:main": "tsc -p tsconfig.json",
     "clean": "rimraf dist",
-    "prepublishOnly": "npm run clean && npm run build",
+    "prepublishOnly": "npm run build",
     "test": "node --loader ts-node/esm test.ts",
     "test:calibration": "npx tsx test/test_data_by_time_range_calibration.ts",
     "test:stet": "npx tsx test/test_get_data_by_stet.ts",
@@ -51,14 +67,17 @@
     "typescript": "^5.3.0"
   },
   "dependencies": {
+    "axios": "^1.10.0"
+  },
+  "optionalDependencies": {
     "@types/mqtt": "^2.5.0",
     "amqplib": "^0.10.8",
-    "axios": "^1.10.0",
     "ioredis": "^5.6.1",
     "kafkajs": "^2.2.4",
     "mongo": "^0.1.0",
     "mqtt": "^5.13.1",
     "pg": "^8.16.3"
   },
-  "type": "module"
+  "type": "module",
+  "sideEffects": false
 }

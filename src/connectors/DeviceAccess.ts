@@ -553,7 +553,7 @@ export class DeviceAccess {
    * 
    *
    * @param options - Options for fetching paginated devices. All fields are optional unless otherwise specified:
-   *   @param skip {number} - Number of devices to skip for pagination (default: 0).
+   *   @param skip {number} - Page number for pagination, 1-based (default: 1, minimum: 1).
    *   @param limit {number} - Number of devices to return per page (default: 10).
    *   @param search {DeviceSearchParams} - Search parameters for filtering devices.
    *     @param all {string[]} - Searches across all fields.
@@ -663,7 +663,7 @@ export class DeviceAccess {
    */
   async getAllDevicesPaginated(options: GetAllDevicesPaginatedOptions = {}): Promise<GetAllDevicesPaginatedResponse | null> {
     const {
-      skip = 0,
+      skip = 1,  // Default to 1 as per API requirement
       limit = 10,
       search,
       isHidden = false,
@@ -674,11 +674,14 @@ export class DeviceAccess {
       ...rest
     } = options;
 
+    // Ensure skip is at least 1 (API requirement)
+    const validSkip = Math.max(1, skip);
+
     const protocol = this.onPrem ? Protocol.HTTP : Protocol.HTTPS;
     const url = DEVICE_ALL_PAGINATED_URL
       .replace('{protocol}', protocol)
       .replace('{backend_url}', this.dataUrl)
-      .replace('{skip}', skip.toString())
+      .replace('{skip}', validSkip.toString())
       .replace('{limit}', limit.toString());
 
     // Construct the request body
