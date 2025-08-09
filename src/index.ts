@@ -2,9 +2,9 @@
 // Only exports core classes that work everywhere
 
 // Core classes - work in all environments  
-export { DeviceAccess } from './connectors/DeviceAccess';
-export { UserAccess } from './connectors/UserAccess'; 
-export { BruceHandler } from './connectors/BruceHandler';
+export { DeviceAccess } from './connectors/DeviceAccess/DeviceAccess';
+export { UserAccess } from './connectors/UserAccess/UserAccess'; 
+export { BruceHandler } from './connectors/BruceHandler/BruceHandler';
 export { login } from './connectors/login_manager';
 
 // Essential types only - users can import more from /core if needed
@@ -15,11 +15,11 @@ export type {
 
 export type {
   DeviceDataResponse
-} from './connectors/DeviceAccess';
+} from './connectors/DeviceAccess/DeviceAccess';
 
 export type {
   UserDetailsResponse
-} from './connectors/UserAccess';
+} from './connectors/UserAccess/UserAccess';
 
 // Note: For full type exports, use 'iosense-sdk/core'
 // For PubSub features, use 'iosense-sdk/node' 

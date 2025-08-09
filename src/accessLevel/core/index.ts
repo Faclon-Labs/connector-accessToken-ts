@@ -44,7 +44,7 @@ export {
   PaginatedEntityDeviceConfig,
   PaginatedEntityData,
   LoadEntitiesGenPaginatedResponse,
-} from '../connectors/DeviceAccess';
+} from '../../connectors/DeviceAccess/DeviceAccess';
 
 export { 
   UserAccess, 
@@ -60,7 +60,7 @@ export {
   UserEntityRoute, 
   UserEntitiesResponse, 
   UserEntityFetchResponse 
-} from '../connectors/UserAccess';
+} from '../../connectors/UserAccess/UserAccess';
 
 export { 
   login, 
@@ -72,8 +72,8 @@ export {
   PersonalDetails as LoginPersonalDetails, 
   ReportDetail, 
   EntitySet 
-} from '../connectors/login_manager';
+} from '../../connectors/login_manager';
 
 export { 
   BruceHandler
-} from '../connectors/BruceHandler';
+} from '../../connectors/BruceHandler/BruceHandler';

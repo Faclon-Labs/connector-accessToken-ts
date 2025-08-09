@@ -66,7 +66,8 @@ const deviceAccess = new DeviceAccess(
 
 // 3. Fetch devices
 const devices = await deviceAccess.getAllDevicesPaginated({
-  pagination: { page: 1, count: 50 }
+  skip: 1,
+  limit: 50
 });
 
 console.log(`Found ${devices.data.totalCount} devices`);
@@ -100,26 +101,47 @@ const deviceAccess = new DeviceAccess('connector.iosense.io', accessToken, false
 
 // Get all devices with pagination
 const devices = await deviceAccess.getAllDevicesPaginated({
-  pagination: { page: 1, count: 20 },
+  skip: 1,
+  limit: 20,
   extraHeaders: { origin: 'https://iosense.io' }
 });
 
 // Get specific device data
-const deviceData = await deviceAccess.getDeviceData('device-id', {
+const deviceData = await deviceAccess.getDeviceData({
+  deviceId: 'device-id',
   extraHeaders: { origin: 'https://iosense.io' }
 });
 
-// Get time-series data
-const timeSeriesData = await deviceAccess.getDeviceDataByTimeRange({
-  deviceId: 'device-id',
+// Get time-series data (multiple options available)
+const timeRangeData = await deviceAccess.getDataByTimeRange({
+  devID: 'device-id',
+  sensor: 'arduino', // optional, defaults to 'arduino'
   startTime: new Date('2024-01-01'),
   endTime: new Date('2024-01-31'),
-  timezone: 'UTC'
+  downSample: 1,
+  extraHeaders: { origin: 'https://iosense.io' }
+});
+
+// Or calibrated time-series
+const calibratedData = await deviceAccess.getDataByTimeRangeWithCalibration({
+  devID: 'device-id',
+  sensor: 'TOTAL',
+  startTime: '2024-01-01T00:00:00Z',
+  endTime: '2024-01-31T23:59:59Z',
+  calibration: true
+});
+
+// Or by start/end timestamps (with optional cursor)
+const stetData = await deviceAccess.getDataByStEt({
+  devID: 'device-id',
+  startTime: 1704067200, // seconds or Date/string also supported
+  endTime: 1706659200,
+  cursor: false
 });
 
 // Entity management
 const entities = await deviceAccess.loadEntitiesGen();
-const entity = await deviceAccess.loadEntitiesGenById('entity-id');
+const entity = await deviceAccess.loadEntitiesGenById({ id: 'entity-id' });
 ```
 
 ### 👤 User Operations
@@ -131,20 +153,18 @@ const userAccess = new UserAccess('connector.iosense.io', accessToken, false);
 
 // Get user profile
 const userDetails = await userAccess.getUserDetails({
-  extraHeaders: { 
-    origin: 'https://iosense.io',
-    organisation: 'https://iosense.io'
-  }
+  origin: 'https://iosense.io',
+  organisation: 'https://iosense.io'
 });
 
 // Check user quota
 const quota = await userAccess.getUserQuota({
-  extraHeaders: { origin: 'https://iosense.io' }
+  origin: 'https://iosense.io'
 });
 
 // Get user entities
 const userEntities = await userAccess.getUserEntities({
-  extraHeaders: { origin: 'https://iosense.io' }
+  origin: 'https://iosense.io'
 });
 ```
 
@@ -169,6 +189,8 @@ const newInsight = await bruceHandler.addUserInsight({
   userTags: ['energy', 'efficiency']
 });
 ```
+
+> Note: DeviceAccess, UserAccess, and BruceHandler have been refactored internally into modular handlers with a shared base. Public APIs remain simple and are accessed via the orchestrator classes above.
 
 ## 🔄 PubSub Connectors
 
@@ -349,7 +371,8 @@ class IOSenseDataPipeline {
   async processDeviceData() {
     // Fetch all devices from IOSense
     const devicesResponse = await this.deviceAccess.getAllDevicesPaginated({
-      pagination: { page: 1, count: 100 },
+      skip: 1,
+      limit: 100,
       extraHeaders: { 
         origin: 'https://iosense.io',
         organisation: 'https://iosense.io' 
@@ -448,13 +471,14 @@ class IOSenseDashboard {
 
     // Get user profile and quota
     const [userDetails, userQuota] = await Promise.all([
-      this.userAccess.getUserDetails({ extraHeaders: headers }),
-      this.userAccess.getUserQuota({ extraHeaders: headers })
+      this.userAccess.getUserDetails(headers),
+      this.userAccess.getUserQuota(headers)
     ]);
 
     // Get device statistics
     const devicesResponse = await this.deviceAccess.getAllDevicesPaginated({
-      pagination: { page: 1, count: 1 }, // Just get count
+      skip: 1,
+      limit: 1, // Just get count
       extraHeaders: headers
     });
 
@@ -463,9 +487,8 @@ class IOSenseDashboard {
     
     return {
       user: {
-        name: `${userDetails.user.personalDetails.name.first} ${userDetails.user.personalDetails.name.last}`,
-        email: userDetails.user.email,
-        organization: userDetails.user.organisation.orgName,
+        name: `${userDetails.personalDetails.name.first} ${userDetails.personalDetails.name.last}`,
+        email: userDetails.email,
         quota: userQuota
       },
       devices: {
@@ -531,8 +554,8 @@ export const IOSenseConfig = {
       'content-type': 'application/json'
     },
     pagination: {
-      page: 1,
-      count: 50
+      skip: 1,
+      limit: 50
     },
     timeout: 30000 // 30 seconds
   }
@@ -587,9 +610,10 @@ class EnergyMonitor {
   async getEnergyConsumption(buildingId: string) {
     // Get monthly energy consumption for a building
     const consumption = await this.deviceAccess.getMonthlyConsumption({
-      deviceId: buildingId,
-      startDate: new Date('2024-01-01'),
-      endDate: new Date('2024-12-31'),
+      device: buildingId,
+      sensor: 'energy',
+      endTime: new Date('2024-12-31'),
+      months: 12,
       extraHeaders: { 
         origin: 'https://iosense.io',
         organisation: 'https://iosense.io' 
@@ -623,13 +647,14 @@ class SmartBuildingController {
 
     // Get all building devices
     const devices = await this.deviceAccess.getAllDevicesPaginated({
-      extraHeaders: headers,
-      pagination: { page: 1, count: 100 }
+      skip: 1,
+      limit: 100,
+      extraHeaders: headers
     });
 
     // Get real-time data for critical systems
     const criticalSystems = ['hvac', 'security', 'lighting', 'energy'];
-    const systemStatus = {};
+    const systemStatus: Record<string, any> = {};
 
     for (const system of criticalSystems) {
       const systemDevices = devices.data.devices.filter(d => 
@@ -683,7 +708,8 @@ describe('IOSense Integration', () => {
 
   test('should fetch devices successfully', async () => {
     const response = await deviceAccess.getAllDevicesPaginated({
-      pagination: { page: 1, count: 10 },
+      skip: 1,
+      limit: 10,
       extraHeaders: { 
         origin: 'https://iosense.io',
         organisation: 'https://iosense.io' 

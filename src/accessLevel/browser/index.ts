@@ -2,7 +2,7 @@
 // No Node.js dependencies
 
 // Re-export all core features
-export * from '../core/index';
+export * from '../core/index.js';
 
 // Web-compatible PubSub implementations (future)
 // export { WebSocketMQTT } from './pubsub/websocket-mqtt';
